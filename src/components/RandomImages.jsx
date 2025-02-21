@@ -1,7 +1,5 @@
 "use client";
-import React, { useState, useRef, useEffect } from "react";
-import Image from "next/image";
-import { useRouter } from "next/navigation";
+import React, { useState } from "react";
 import { FaSync } from "react-icons/fa";
 
 // Array of image paths from the public/images folder
@@ -12,7 +10,6 @@ const imagesList = [
   "/images/image4.jpeg",
   "/images/image5.jpeg",
   "/images/image6.jpeg",
-  // add more images as needed
   "/images/image7.jpeg",
   "/images/image8.jpeg",
   "/images/image9.jpeg",
@@ -35,60 +32,36 @@ const getRandomImage = () => {
 
 export default function RandomImage() {
   const [currentImage, setCurrentImage] = useState(null);
-  // Using a ref to count the total images shown
-  const countRef = useRef(0);
-  const intervalRef = useRef(null);
-  const router = useRouter();
-
-  // Function to start the cycle after the button is clicked
-  const startRandomImage = () => {
-    // Reset counter and display the first image immediately
-    countRef.current = 1;
+  const [count, setCount] = useState(0);
+  // Change the background image when the button is clicked
+  const handleChangeImage = () => {
     setCurrentImage(getRandomImage());
-
-    // Clear any existing interval to avoid duplicates
-    if (intervalRef.current) clearInterval(intervalRef.current);
-
-    // Set up the interval to change the image every 4 seconds
-    intervalRef.current = setInterval(() => {
-      countRef.current++;
-      if (countRef.current > 7) {
-        // Stop after 7 images, navigate back to home, and clear the image
-        clearInterval(intervalRef.current);
-        router.push("/");
+    setCount(count+1);
+    if(count == 7){
         setCurrentImage(null);
-      } else {
-        setCurrentImage(getRandomImage());
-      }
-    }, 4000);
+        setCount(0);
+    }
   };
 
-  // Clean up the interval when the component unmounts
-  useEffect(() => {
-    return () => {
-      if (intervalRef.current) clearInterval(intervalRef.current);
-    };
-  }, []);
-
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-900 p-4">
-      <button
-        onClick={startRandomImage}
-        className="mb-8 px-6 py-3 bg-indigo-600 text-white rounded-full shadow-lg hover:bg-indigo-500 flex items-center space-x-2 transition-colors duration-300"
-      >
-        <FaSync className="text-xl" />
-        <span>Start Random Image</span>
-      </button>
-      {currentImage && (
-        <div className="w-96 h-96 relative border border-gray-700 rounded overflow-hidden shadow-md">
-          <Image
-            src={currentImage}
-            alt="Random display"
-            fill
-            style={{ objectFit: "cover" }}
-          />
-        </div>
-      )}
+    <div
+      className="flex flex-col items-center justify-center min-h-screen p-4 bg-gray-900"
+      style={{
+        backgroundImage: currentImage ? `url(${currentImage})` : "none",
+        backgroundSize: "contain",
+        backgroundPosition: "center",
+        backgroundRepeat: "no-repeat",
+      }}
+    >
+      {/* Overlay for button clarity */}
+      <div className="bg-black bg-opacity-50 p-4 rounded">
+        <button
+          onClick={handleChangeImage}
+          className="my-3 px-6 py-3 bg-indigo-600 text-white rounded-full shadow-lg hover:bg-indigo-500 flex items-center space-x-2 transition-colors duration-300"
+        >
+          <FaSync className="text-xl" />
+        </button>
+      </div>
     </div>
   );
 }
